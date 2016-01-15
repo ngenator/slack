@@ -44,7 +44,7 @@ func (self *Client) Get(method string, params url.Values) ([]byte, error) {
 
 func (self *Client) AddReaction(name, channel, timestamp string) error {
 	values := url.Values{}
-	values.Add("name", "poop")
+	values.Add("name", name)
 	values.Add("channel", channel)
 	values.Add("timestamp", timestamp)
 
