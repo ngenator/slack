@@ -37,6 +37,18 @@ type RTMEvent struct {
 
 type RTMMessage struct{}
 
+type RTBotMessage struct {
+	Attachments []struct {
+		ID       int    `json:"id"`
+		Fallback string `json:"fallback"`
+		Color    string `json:"color"`
+		Fields   []struct {
+			Title string `json:"title"`
+			Value string `json:"value"`
+		} `json:"fields"`
+	} `json:"attachments"`
+}
+
 type RTMPing struct {
 	ID   int    `json:"id"`
 	Type string `json:"type"`
@@ -50,8 +62,8 @@ type Realtime struct {
 	ws       *websocket.Conn
 }
 
-func (self *Realtime) Connect() (users map[string]User, channels map[string]Channel) {
-	body, err := self.Get("rtm.start", url.Values{})
+func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel) {
+	body, err := r.Get("rtm.start", url.Values{})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -78,51 +90,58 @@ func (self *Realtime) Connect() (users map[string]User, channels map[string]Chan
 		log.Fatal(err.Error())
 	}
 
-	self.ws = ws
+	r.ws = ws
 
 	return users, channels
 }
 
-func (self *Realtime) Listen() {
-	var e RTMEvent
+func (r *Realtime) Listen() {
+	m := json.RawMessage{}
+	e := RTMEvent{}
 
-	self.check()
+	r.check()
 
 	tick := time.NewTicker(30 * time.Second)
 	defer tick.Stop()
 
 	for {
 		select {
-		case <-self.done:
+		case <-r.done:
 			log.Println("Stopped!")
-			close(self.done)
+			close(r.done)
 			return
 		case <-tick.C:
 			log.Println("Ping!")
-			err := self.ping()
+			err := r.ping()
 			if isError(err) {
-				self.done <- true
+				r.done <- true
 			}
 		default:
-			err := websocket.JSON.Receive(self.ws, &e)
+			err := websocket.JSON.Receive(r.ws, &m)
 			if !isError(err) {
-				self.Events <- e
+				if err := json.Unmarshal(m, &e); err != nil {
+					log.Println(err.Error(), string(m))
+				} else {
+					r.Events <- e
+				}
+			} else {
+				log.Println(err.Error())
 			}
 		}
 	}
 }
 
-func (self *Realtime) check() {
-	if !self.ws.IsClientConn() {
+func (r *Realtime) check() {
+	if !r.ws.IsClientConn() {
 		log.Panic("ws cannot be nil! did you call Start()?")
 	}
 }
 
-func (self *Realtime) ping() error {
-	self.check()
-	err := websocket.JSON.Send(self.ws, &RTMPing{1, "ping"})
+func (r *Realtime) ping() error {
+	r.check()
+	err := websocket.JSON.Send(r.ws, &RTMPing{1, "ping"})
 	if isError(err) {
-		self.done <- true
+		r.done <- true
 		return err
 	}
 	return nil
