@@ -2,7 +2,6 @@ package slack
 
 import (
 	"encoding/json"
-	"log"
 	"net/url"
 	"time"
 
@@ -35,9 +34,14 @@ type RTMEvent struct {
 	} `json:"error,omitempty"`
 }
 
-type RTMMessage struct{}
+type RTMMessage struct {
+	ID   int    `json:"id"`
+	Type string `json:"type"`
+}
 
-type RTBotMessage struct {
+type Event json.RawMessage
+
+type Attachments struct {
 	Attachments []struct {
 		ID       int    `json:"id"`
 		Fallback string `json:"fallback"`
@@ -65,13 +69,13 @@ type Realtime struct {
 func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel) {
 	body, err := r.Get("rtm.start", url.Values{})
 	if err != nil {
-		log.Fatal(err.Error())
+		ErrorLog.Fatalf("error sending rtm.start request: %v\n", err)
 	}
 
 	start := new(RTMStart)
 
 	if err := json.Unmarshal(body, &start); err != nil {
-		log.Fatal(err.Error())
+		ErrorLog.Fatalf("error unmarshaling rtm.start response: %v\n", err)
 	}
 
 	users = make(map[string]User)
@@ -87,7 +91,7 @@ func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel
 
 	ws, err := websocket.Dial(start.URL, "", "https://slack.com")
 	if err != nil {
-		log.Fatal(err.Error())
+		ErrorLog.Fatalf("error dialing websocket address: %v\n\t%s\n", err, start.URL)
 	}
 
 	r.ws = ws
@@ -96,10 +100,10 @@ func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel
 }
 
 func (r *Realtime) Listen() {
+	r.isReady()
+
 	m := json.RawMessage{}
 	e := RTMEvent{}
-
-	r.check()
 
 	tick := time.NewTicker(30 * time.Second)
 	defer tick.Stop()
@@ -107,52 +111,56 @@ func (r *Realtime) Listen() {
 	for {
 		select {
 		case <-r.done:
-			log.Println("Stopped!")
+			Log.Println("Stopped!")
 			close(r.done)
 			return
 		case <-tick.C:
-			log.Println("Ping!")
+			Log.Println("Ping!")
 			err := r.ping()
-			if isError(err) {
+			if err != nil {
 				r.done <- true
 			}
 		default:
 			err := websocket.JSON.Receive(r.ws, &m)
-			if !isError(err) {
+			if err == nil {
+				EventLog.Println(string(m))
 				if err := json.Unmarshal(m, &e); err != nil {
-					log.Println(err.Error(), string(m))
+					ErrorLog.Printf("error unmarshaling event: %v\n\t%s\n", err, string(m))
 				} else {
 					r.Events <- e
 				}
 			} else {
-				log.Println(err.Error())
+				ErrorLog.Printf("error unmarshaling raw event: %v\n", err)
 			}
 		}
 	}
 }
 
-func (r *Realtime) check() {
+func (r *Realtime) Send(message interface{}) error {
+	r.isReady()
+
+	err := websocket.JSON.Send(r.ws, &message)
+	if err != nil {
+		ErrorLog.Printf("error sending realtime message: %v\n", err)
+		r.done <- true
+		return err
+	}
+
+	return nil
+}
+
+func (r *Realtime) isReady() {
 	if !r.ws.IsClientConn() {
-		log.Panic("ws cannot be nil! did you call Start()?")
+		ErrorLog.Panic("r.ws cannot be nil! did you call Connect()?")
 	}
 }
 
 func (r *Realtime) ping() error {
-	r.check()
-	err := websocket.JSON.Send(r.ws, &RTMPing{1, "ping"})
-	if isError(err) {
-		r.done <- true
+	if err := r.Send(RTMMessage{1, "ping"}); err != nil {
+		ErrorLog.Printf("error sending ping: %v\n", err)
 		return err
 	}
 	return nil
-}
-
-func isError(err error) bool {
-	if err != nil {
-		log.Printf("%10s %s\n", "Error:", err.Error())
-		return true
-	}
-	return false
 }
 
 func NewRealtimeClient(token string) *Realtime {

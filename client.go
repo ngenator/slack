@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -28,14 +27,14 @@ func (c *Client) Get(method string, params url.Values) ([]byte, error) {
 
 	resp, err := c.client.Get(u)
 	if err != nil {
-		log.Printf("error sending api request: %v\n", err)
+		ErrorLog.Printf("error sending api request: %v\n", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("error reading response body: %v\n", err)
+		ErrorLog.Printf("error reading response body: %v\n", err)
 		return nil, err
 	}
 
@@ -50,14 +49,14 @@ func (c *Client) AddReaction(name, channel, timestamp string) error {
 
 	resp, err := c.Get("reactions.add", values)
 	if err != nil {
-		log.Printf("error sending reaction: %v\n", err)
+		ErrorLog.Printf("error sending reaction: %v\n", err)
 		return err
 	}
 
 	response := &Response{}
 
 	if err := json.Unmarshal(resp, &response); err != nil {
-		log.Printf("error unmarshaling reaction response: %v\n", err)
+		ErrorLog.Printf("error unmarshaling reaction response: %v\n", err)
 		return err
 	}
 
@@ -70,7 +69,7 @@ func (c *Client) AddReaction(name, channel, timestamp string) error {
 
 func NewClient(token string) *Client {
 	return &Client{
-		Token:  token,
-		client: &http.Client{},
+		token,
+		&http.Client{},
 	}
 }
