@@ -18,6 +18,7 @@ type User struct {
 	IsPrimaryOwner    bool   `json:"is_primary_owner,omitempty"`
 	IsRestricted      bool   `json:"is_restricted,omitempty"`
 	IsUltraRestricted bool   `json:"is_ultra_restricted,omitempty"`
+	IsBot             bool   `json:"is_bot,omitempty"`
 	HasTwoFactorAuth  bool   `json:"has_2fa,omitempty"`
 	TwoFactorType     string `json:"two_factor_type,omitempty"`
 	HasFiles          bool   `json:"has_files,omitempty"`

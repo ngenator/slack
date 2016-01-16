@@ -70,7 +70,7 @@ func (c *Client) AddReaction(name, channel, timestamp string) error {
 
 func NewClient(token string) *Client {
 	return &Client{
-		Token: token,
+		Token:  token,
 		client: &http.Client{},
 	}
 }
