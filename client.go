@@ -18,7 +18,7 @@ type Response struct {
 
 type Client struct {
 	Token  string
-	client http.Client
+	client *http.Client
 }
 
 func (c *Client) Get(method string, params url.Values) ([]byte, error) {
@@ -66,4 +66,11 @@ func (c *Client) AddReaction(name, channel, timestamp string) error {
 	}
 
 	return errors.New("Response was not ok")
+}
+
+func NewClient(token string) *Client {
+	return &Client{
+		Token: token,
+		client: &http.Client{},
+	}
 }

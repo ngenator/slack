@@ -157,9 +157,7 @@ func isError(err error) bool {
 
 func NewRealtimeClient(token string) *Realtime {
 	return &Realtime{
-		Client{
-			Token: token,
-		},
+		*NewClient(token),
 		make(chan RTMEvent),
 		make(chan RTMMessage),
 		make(chan bool),
