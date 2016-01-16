@@ -12,7 +12,8 @@ import (
 const APIBaseURL = "https://slack.com/api"
 
 type Response struct {
-	Ok bool `json:"ok"`
+	Ok    bool   `json:"ok"`
+	Error string `json:"error,omitempty"`
 }
 
 type Client struct {
@@ -53,18 +54,24 @@ func (c *Client) AddReaction(name, channel, timestamp string) error {
 		return err
 	}
 
-	response := &Response{}
+	raw := json.RawMessage{}
+	response := Response{}
 
-	if err := json.Unmarshal(resp, &response); err != nil {
-		ErrorLog.Printf("error unmarshaling reaction response: %v\n", err)
+	if err := json.Unmarshal(resp, &raw); err != nil {
+		ErrorLog.Printf("error unmarshaling raw reaction response: %v\n", err)
 		return err
+	} else {
+		if err := json.Unmarshal(raw, &response); err != nil {
+			ErrorLog.Printf("error unmarshaling reaction: %v\n\t%s\n", err, string(raw))
+			return err
+		}
 	}
 
 	if response.Ok {
 		return nil
 	}
 
-	return errors.New("Response was not ok")
+	return errors.New(fmt.Sprintf("Response was not ok! %s", response.Error))
 }
 
 func NewClient(token string) *Client {

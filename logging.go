@@ -35,7 +35,5 @@ func logToFile(logger *log.Logger, filename string) {
 		logger.Fatalf("error opening file: %v", err)
 	}
 
-	logger.Println("Output redirecting to ", filename)
 	logger.SetOutput(f)
-	logger.Println("Output changed!")
 }
