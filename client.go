@@ -21,43 +21,43 @@ type Client struct {
 	client http.Client
 }
 
-func (self *Client) Get(method string, params url.Values) ([]byte, error) {
-	params.Add("token", self.Token)
+func (c *Client) Get(method string, params url.Values) ([]byte, error) {
+	params.Add("token", c.Token)
 
 	u := fmt.Sprintf("%s/%s?%s", APIBaseURL, method, params.Encode())
 
-	resp, err := self.client.Get(u)
+	resp, err := c.client.Get(u)
 	if err != nil {
-		log.Println("Error: ", err.Error())
+		log.Printf("error sending api request: %v\n", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Error: ", err.Error())
+		log.Printf("error reading response body: %v\n", err)
 		return nil, err
 	}
 
 	return body, nil
 }
 
-func (self *Client) AddReaction(name, channel, timestamp string) error {
+func (c *Client) AddReaction(name, channel, timestamp string) error {
 	values := url.Values{}
 	values.Add("name", name)
 	values.Add("channel", channel)
 	values.Add("timestamp", timestamp)
 
-	resp, err := self.Get("reactions.add", values)
+	resp, err := c.Get("reactions.add", values)
 	if err != nil {
-		log.Println("Error: ", err.Error())
+		log.Printf("error sending reaction: %v\n", err)
 		return err
 	}
 
-	response := new(Response)
+	response := &Response{}
 
 	if err := json.Unmarshal(resp, &response); err != nil {
-		log.Println("Error: ", err.Error())
+		log.Printf("error unmarshaling reaction response: %v\n", err)
 		return err
 	}
 

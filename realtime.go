@@ -155,7 +155,7 @@ func isError(err error) bool {
 	return false
 }
 
-func NewRealtime(token string) *Realtime {
+func NewRealtimeClient(token string) *Realtime {
 	return &Realtime{
 		Client{
 			Token: token,
