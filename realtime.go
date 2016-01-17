@@ -2,6 +2,7 @@ package slack
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"time"
 
@@ -16,44 +17,33 @@ type RTMStart struct {
 }
 
 type RTMEvent struct {
-	Type      string `json:"type,omitempty"`
-	SubType   string `json:"subtype,omitempty"`
-	Hidden    bool   `json:"hidden,omitempty"`
+	Type      string     `json:"type,omitempty"`
+	SubType   string     `json:"subtype,omitempty"`
+	Hidden    bool       `json:"hidden,omitempty"`
+	Timestamp string     `json:"ts,omitempty"`
+	Username  string     `json:"username,omitempty"`
+	User      string     `json:"user,omitempty"`
+	Channel   string     `json:"channel,omitempty"`
+	Text      string     `json:"text,omitempty"`
+	Edited    *RTMEdited `json:"edited,omitempty"`
+	Error     *RTMError  `json:"error,omitempty"`
+}
+
+type RTMError struct {
+	Code    int    `json:"code,omitempty"`
+	Message string `json:"msg,omitempty"`
+}
+
+func (e *RTMError) String() string {
+	return fmt.Sprintf("%d: %s", e.Code, e.Message)
+}
+
+type RTMEdited struct {
 	Timestamp string `json:"ts,omitempty"`
-	Username  string `json:"username,omitempty"`
 	User      string `json:"user,omitempty"`
-	Channel   string `json:"channel,omitempty"`
-	Text      string `json:"text,omitempty"`
-	Edited    struct {
-		Timestamp string `json:"ts,omitempty"`
-		User      string `json:"user,omitempty"`
-	} `json:"edited,omitempty"`
-	Error struct {
-		Code    int    `json:"code,omitempty"`
-		Message string `json:"msg,omitempty"`
-	} `json:"error,omitempty"`
 }
 
 type RTMMessage struct {
-	ID   int    `json:"id"`
-	Type string `json:"type"`
-}
-
-type Event json.RawMessage
-
-type Attachments struct {
-	Attachments []struct {
-		ID       int    `json:"id"`
-		Fallback string `json:"fallback"`
-		Color    string `json:"color"`
-		Fields   []struct {
-			Title string `json:"title"`
-			Value string `json:"value"`
-		} `json:"fields"`
-	} `json:"attachments"`
-}
-
-type RTMPing struct {
 	ID   int    `json:"id"`
 	Type string `json:"type"`
 }
