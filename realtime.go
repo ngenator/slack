@@ -14,9 +14,11 @@ type RTMStart struct {
 	URL      string    `json:"url,omitempty"`
 	Channels []Channel `json:"channels,omitempty"`
 	Users    []User    `json:"users,omitempty"`
+	// TODO: add the rest of the initial data
 }
 
 type RTMEvent struct {
+	// TODO: move the message specific stuff elsewhere
 	Type      string     `json:"type,omitempty"`
 	SubType   string     `json:"subtype,omitempty"`
 	Hidden    bool       `json:"hidden,omitempty"`
@@ -48,7 +50,8 @@ type RTMMessage struct {
 	Type string `json:"type"`
 }
 
-type Realtime struct {
+// TODO: split each event type into it's own chan and push messages to the appropriate chan
+type RealtimeClient struct {
 	Client
 	Events   chan RTMEvent
 	Messages chan RTMMessage
@@ -56,7 +59,7 @@ type Realtime struct {
 	ws       *websocket.Conn
 }
 
-func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel) {
+func (r *RealtimeClient) Connect() (users map[string]User, channels map[string]Channel) {
 	body, err := r.Get("rtm.start", url.Values{})
 	if err != nil {
 		ErrorLog.Fatalf("error sending rtm.start request: %v\n", err)
@@ -68,6 +71,7 @@ func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel
 		ErrorLog.Fatalf("error unmarshaling rtm.start response: %v\n", err)
 	}
 
+	// TODO: clean this up and store these on the instance
 	users = make(map[string]User)
 	channels = make(map[string]Channel)
 
@@ -89,7 +93,7 @@ func (r *Realtime) Connect() (users map[string]User, channels map[string]Channel
 	return users, channels
 }
 
-func (r *Realtime) Listen() {
+func (r *RealtimeClient) Listen() {
 	r.isReady()
 
 	m := json.RawMessage{}
@@ -126,7 +130,7 @@ func (r *Realtime) Listen() {
 	}
 }
 
-func (r *Realtime) Send(message interface{}) error {
+func (r *RealtimeClient) Send(message interface{}) error {
 	r.isReady()
 
 	err := websocket.JSON.Send(r.ws, &message)
@@ -139,13 +143,13 @@ func (r *Realtime) Send(message interface{}) error {
 	return nil
 }
 
-func (r *Realtime) isReady() {
+func (r *RealtimeClient) isReady() {
 	if !r.ws.IsClientConn() {
 		ErrorLog.Panic("r.ws cannot be nil! did you call Connect()?")
 	}
 }
 
-func (r *Realtime) ping() error {
+func (r *RealtimeClient) ping() error {
 	if err := r.Send(RTMMessage{1, "ping"}); err != nil {
 		ErrorLog.Printf("error sending ping: %v\n", err)
 		return err
@@ -153,8 +157,8 @@ func (r *Realtime) ping() error {
 	return nil
 }
 
-func NewRealtimeClient(token string) *Realtime {
-	return &Realtime{
+func NewRealtimeClient(token string) *RealtimeClient {
+	return &RealtimeClient{
 		*NewClient(token),
 		make(chan RTMEvent),
 		make(chan RTMMessage),
