@@ -115,16 +115,15 @@ func (r *RealtimeClient) Listen() {
 				r.done <- true
 			}
 		default:
-			err := websocket.JSON.Receive(r.ws, &m)
-			if err == nil {
+			if err := websocket.JSON.Receive(r.ws, &m); err != nil {
+				ErrorLog.Printf("error unmarshaling raw event: %v\n", err)
+			} else {
 				EventLog.Println(string(m))
 				if err := json.Unmarshal(m, &e); err != nil {
 					ErrorLog.Printf("error unmarshaling event: %v\n\t%s\n", err, string(m))
 				} else {
 					r.Events <- e
 				}
-			} else {
-				ErrorLog.Printf("error unmarshaling raw event: %v\n", err)
 			}
 		}
 	}
