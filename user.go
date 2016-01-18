@@ -25,3 +25,6 @@ type Profile struct {
 	Skype     string `json:"skype,omitempty"`
 	Phone     string `json:"phone,omitempty"`
 }
+
+// UserID is a reference to a User by User.ID
+type UserID string
