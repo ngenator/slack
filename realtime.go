@@ -59,38 +59,37 @@ type RealtimeClient struct {
 	ws       *websocket.Conn
 }
 
-func (r *RealtimeClient) Connect() (users map[string]User, channels map[string]Channel) {
+func (r *RealtimeClient) Connect() error {
 	body, err := r.Get("rtm.start", url.Values{})
 	if err != nil {
-		ErrorLog.Fatalf("error sending rtm.start request: %v\n", err)
+		ErrorLog.Printf("error sending rtm.start request: %v\n", err)
+		return err
 	}
 
 	start := new(RTMStart)
 
 	if err := json.Unmarshal(body, &start); err != nil {
-		ErrorLog.Fatalf("error unmarshaling rtm.start response: %v\n", err)
+		ErrorLog.Printf("error unmarshaling rtm.start response: %v\n", err)
+		return err
 	}
 
-	// TODO: clean this up and store these on the instance
-	users = make(map[string]User)
-	channels = make(map[string]Channel)
-
 	for _, u := range start.Users {
-		users[u.ID] = u
+		r.Users[u.ID] = u
 	}
 
 	for _, c := range start.Channels {
-		channels[c.ID] = c
+		r.Channels[c.ID] = c
 	}
 
 	ws, err := websocket.Dial(start.URL, "", "https://slack.com")
 	if err != nil {
-		ErrorLog.Fatalf("error dialing websocket address: %v\n\t%s\n", err, start.URL)
+		ErrorLog.Printf("error dialing websocket address: %v\n\t%s\n", err, start.URL)
+		return err
 	}
 
 	r.ws = ws
 
-	return users, channels
+	return nil
 }
 
 func (r *RealtimeClient) Listen() {
