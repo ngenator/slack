@@ -1,4 +1,8 @@
-package slack
+package realtime
+
+import (
+	"github.com/ngenator/slack"
+)
 
 var MessageEventTypes = map[string]interface{}{
 	"bot_message": &BotMessageEvent{},
@@ -32,34 +36,34 @@ var MessageEventTypes = map[string]interface{}{
 }
 
 type MessageEvent struct {
-	Message
+	slack.Message
 }
 
 type BotMessageEvent struct {
 	BotID string `json:"bot_id,omitempty"`
-	Message
+	slack.Message
 }
 
 type MeMessageEvent struct {
-	Message
+	slack.Message
 }
 
 type MessageChangedEvent struct {
 	Hidden bool `json:"hidden,omitempty"`
-	Message
+	slack.Message
 }
 
 type MessageDeletedEvent struct {
-	DeletedTimestamp SlackTimestamp `json:"deleted_ts,omitempty"`
-	Timestamp        SlackTimestamp `json:"ts,omitempty"`
-	Hidden           bool           `json:"hidden,omitempty"`
+	DeletedTimestamp slack.UniqueTimestamp `json:"deleted_ts,omitempty"`
+	Timestamp        slack.UniqueTimestamp `json:"ts,omitempty"`
+	Hidden           bool                  `json:"hidden,omitempty"`
 }
 
 type ChannelJoinMessageEvent struct {
-	Text      string         `json:"text,omitempty"`
-	Inviter   UserID         `json:"inviter,omitempty"`
-	Timestamp SlackTimestamp `json:"ts,omitempty"`
-	UserID    UserID         `json:"user,omitempty"`
+	Text      string                `json:"text,omitempty"`
+	Inviter   slack.UserID          `json:"inviter,omitempty"`
+	Timestamp slack.UniqueTimestamp `json:"ts,omitempty"`
+	UserID    slack.UserID          `json:"user,omitempty"`
 }
 
 type ChannelLeaveMessageEvent struct{}

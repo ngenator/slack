@@ -1,6 +1,28 @@
-package slack
+package api
 
-var ErrorMessages = map[string]string{
+import (
+	"fmt"
+)
+
+type Error string
+
+func (e *Error) MarshalJSON() ([]byte, error) {
+	if message, ok := ErrorMessages[*e]; ok {
+		return []byte(fmt.Sprint("%s: %s", e, message)), nil
+	}
+	return []byte(string(*e)), nil
+}
+
+func (e *Error) UnmarshalJSON(b []byte) error {
+	*e = Error(b)
+	return nil
+}
+
+func (e *Error) String() string {
+	return string(*e)
+}
+
+var ErrorMessages = map[Error]string{
 	// common
 	"not_authed":       "No authentication token provided.",
 	"invalid_auth":     "Invalid authentication token.",

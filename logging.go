@@ -7,14 +7,16 @@ import (
 
 var (
 	ErrorLog *log.Logger
+	InfoLog  *log.Logger
 	EventLog *log.Logger
 	Log      *log.Logger
 )
 
 func init() {
 	ErrorLog = log.New(os.Stderr, "[ERROR]\t", log.LstdFlags|log.Lshortfile)
+	InfoLog = log.New(os.Stdout, "[INFO]\t", log.LstdFlags)
 	EventLog = log.New(os.Stdout, "[EVENT]\t", log.LstdFlags)
-	Log = log.New(os.Stdout, "[INFO]\t", log.LstdFlags)
+	Log = log.New(os.Stdout, "[LOG]\t", log.LstdFlags)
 }
 
 func LogErrorsToFile(filename string) {
@@ -26,7 +28,7 @@ func LogEventsToFile(filename string) {
 }
 
 func LogInfoToFile(filename string) {
-	logToFile(Log, filename)
+	logToFile(InfoLog, filename)
 }
 
 func logToFile(logger *log.Logger, filename string) {

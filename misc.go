@@ -33,5 +33,5 @@ type UserID string
 // ChannelID is a reference to a Channel by Channel.ID
 type ChannelID string
 
-// SlackTimestamp is a unique (per-channel) timestamp
-type SlackTimestamp string
+// UniqueTimestamp is a unique (per-channel) timestamp
+type UniqueTimestamp string
