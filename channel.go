@@ -30,6 +30,7 @@ type ChannelDescription struct {
 	LastSet *Timestamp `json:"last_set,omitempty"`
 }
 
+// IMChannel type
 type IMChannel struct {
 	UserID             UserID     `json:"user,omitempty"`
 	IsIM               bool       `json:"is_im,omitempty"`

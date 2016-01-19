@@ -5,12 +5,17 @@ import (
 	"os"
 )
 
-var (
-	ErrorLog *log.Logger
-	InfoLog  *log.Logger
-	EventLog *log.Logger
-	Log      *log.Logger
-)
+// ErrorLog
+var ErrorLog *log.Logger
+
+// InfoLog
+var InfoLog *log.Logger
+
+// EventLog
+var EventLog *log.Logger
+
+// Log
+var Log *log.Logger
 
 func init() {
 	ErrorLog = log.New(os.Stderr, "[ERROR]\t", log.LstdFlags|log.Lshortfile)
@@ -19,14 +24,17 @@ func init() {
 	Log = log.New(os.Stdout, "[LOG]\t", log.LstdFlags)
 }
 
+// LogErrorsToFile redirects the ErrorLog output to the given file name
 func LogErrorsToFile(filename string) {
 	logToFile(ErrorLog, filename)
 }
 
+// LogEventsToFile redirects the EventLog output to the given file name
 func LogEventsToFile(filename string) {
 	logToFile(EventLog, filename)
 }
 
+// LogInfoToFile redirects the InfoLog output to the given file name
 func LogInfoToFile(filename string) {
 	logToFile(InfoLog, filename)
 }
