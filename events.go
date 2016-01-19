@@ -112,6 +112,21 @@ type ImMarkedEvent struct {
 	MentionCountDisplay int            `json:"mention_count_display,omitempty"`
 }
 
+type ImCreatedEvent struct {
+	UserID  UserID    `json:"user,omitempty"`
+	Channel IMChannel `json:"channel,omitempty"`
+}
+
+type ImOpenEvent struct {
+	UserID    UserID    `json:"user,omitempty"`
+	ChannelID ChannelID `json:"channel,omitempty"`
+}
+
+type ImCloseEvent struct {
+	UserID    UserID    `json:"user,omitempty"`
+	ChannelID ChannelID `json:"channel,omitempty"`
+}
+
 type GroupMarkedEvent struct {
 }
 
@@ -124,6 +139,9 @@ var EventTypes = map[string]interface{}{
 	"channel_marked":  &ChannelMarkedEvent{},
 	"group_marked":    &GroupMarkedEvent{},
 	"im_marked":       &ImMarkedEvent{},
+	"im_created":      &ImCreatedEvent{},
+	"im_open":         &ImOpenEvent{},
+	"im_close":        &ImCloseEvent{},
 }
 
 var EventSubTypes = map[string]interface{}{
