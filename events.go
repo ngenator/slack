@@ -79,6 +79,24 @@ type ChannelJoinEvent struct {
 	UserID    UserID         `json:"user,omitempty"`
 }
 
+type ChannelLeaveEvent struct {
+}
+
+type ChannelTopicEvent struct {
+}
+
+type ChannelPurposeEvent struct {
+}
+
+type ChannelNameEvent struct {
+}
+
+type ChannelArchiveEvent struct {
+}
+
+type ChannelUnArchiveEvent struct {
+}
+
 type ReactionAddedEvent struct {
 }
 
@@ -101,6 +119,7 @@ var EventTypes = map[string]interface{}{
 	"hello":           &HelloEvent{},
 	"pong":            &PongEvent{},
 	"message":         &MessageEvent{},
+	"user_typing":     &UserTypingEvent{},
 	"presence_change": &PresenceChangeEvent{},
 	"channel_marked":  &ChannelMarkedEvent{},
 	"group_marked":    &GroupMarkedEvent{},
@@ -114,12 +133,12 @@ var EventSubTypes = map[string]interface{}{
 	"message_changed":   &MessageChangedEvent{},
 	"message_deleted":   &MessageDeletedEvent{},
 	"channel_join":      &ChannelJoinEvent{},
-	"channel_leave":     &MessageEvent{},
-	"channel_topic":     &MessageEvent{},
-	"channel_purpose":   &MessageEvent{},
-	"channel_name":      &MessageEvent{},
-	"channel_archive":   &MessageEvent{},
-	"channel_unarchive": &MessageEvent{},
+	"channel_leave":     &ChannelLeaveEvent{},
+	"channel_topic":     &ChannelTopicEvent{},
+	"channel_purpose":   &ChannelPurposeEvent{},
+	"channel_name":      &ChannelNameEvent{},
+	"channel_archive":   &ChannelArchiveEvent{},
+	"channel_unarchive": &ChannelUnArchiveEvent{},
 	"group_join":        &MessageEvent{},
 	"group_leave":       &MessageEvent{},
 	"group_topic":       &MessageEvent{},
