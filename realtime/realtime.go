@@ -8,16 +8,19 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// OutgoingMessage type
 type OutgoingMessage struct {
 	ID   int64  `json:"id"`
 	Type string `json:"type"`
 }
 
+// Realtime is a client that uses the slack realtime api
 type Realtime struct {
 	done chan bool
 	ws   *websocket.Conn
 }
 
+// Dial connects to the given websocket address
 func (r *Realtime) Dial(url, origin string) error {
 	ws, err := websocket.Dial(url, "", origin)
 	if err != nil {
@@ -30,10 +33,12 @@ func (r *Realtime) Dial(url, origin string) error {
 	return nil
 }
 
+// Stop stops the processing of new events
 func (r *Realtime) Stop() {
 	r.done <- true
 }
 
+// ReceiveEvents gets events from the websocket and pushes them through a chan
 func (r *Realtime) ReceiveEvents() <-chan interface{} {
 	r.isReady()
 
@@ -98,6 +103,7 @@ func (r *Realtime) ReceiveEvents() <-chan interface{} {
 	return events
 }
 
+// Send sends a message via the websocket
 func (r *Realtime) Send(message interface{}) error {
 	r.isReady()
 
@@ -111,7 +117,7 @@ func (r *Realtime) Send(message interface{}) error {
 }
 
 func (r *Realtime) isReady() {
-	if *r.ws == nil || !r.ws.IsClientConn() {
+	if r.ws == nil || !r.ws.IsClientConn() {
 		slack.ErrorLog.Panic("r.ws cannot be nil! did you call Connect()?")
 	}
 }
@@ -125,6 +131,7 @@ func (r *Realtime) ping() (int64, error) {
 	return ts, nil
 }
 
+// New creates a Realtime client
 func New(token string) *Realtime {
 	return &Realtime{
 		make(chan bool),

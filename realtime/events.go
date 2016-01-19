@@ -43,23 +43,20 @@ func GetEventType(e *Event) interface{} {
 			if e.SubType != "" {
 				if MessageEventType, ok := MessageEventTypes[e.SubType]; ok {
 					return MessageEventType
-				} else {
-					ErrorLog.Println("MessageEventType not found:", e.SubType)
 				}
+				slack.ErrorLog.Println("MessageEventType not found:", e.SubType)
 			}
-			return EventType
-		default:
-			return EventType
 		}
-	} else {
-		ErrorLog.Println("EventType not found:", e.Type)
+		return EventType
 	}
+	slack.ErrorLog.Println("EventType not found:", e.Type)
+
 	return nil
 }
 
 func UnmarshalRaw(raw *json.RawMessage, event interface{}) error {
 	if err := json.Unmarshal(*raw, &event); err != nil {
-		ErrorLog.Printf("error unmarshaling %T to %T:\n\t%+[1]v\n", raw, event)
+		slack.ErrorLog.Printf("error unmarshaling %T to %T:\n\t%+[1]v\n", raw, event)
 		return err
 	}
 	return nil
@@ -80,8 +77,7 @@ func (e *EventError) String() string {
 	return fmt.Sprintf("%d: %s", e.Code, e.Message)
 }
 
-type HelloEvent struct {
-}
+type HelloEvent struct{}
 
 type PongEvent struct {
 	ReplyTo int64 `json:"reply_to,omitempty"`
@@ -114,40 +110,23 @@ type ChannelMarkedEvent struct {
 	MentionCountDisplay int                   `json:"mention_count_display,omitempty"`
 }
 
-type ChannelCreatedEvent struct {
-}
-
-type ChannelJoinedEvent struct {
-}
-
-type ChannelLeftEvent struct {
-}
-
-type ChannelDeletedEvent struct {
-}
-
-type ChannelRenameEvent struct {
-}
-
-type ChannelArchiveEvent struct {
-}
-
-type ChannelUnarchiveEvent struct {
-}
-
-type ChannelHistoryChangedEvent struct {
-}
+type ChannelCreatedEvent struct{}
+type ChannelJoinedEvent struct{}
+type ChannelLeftEvent struct{}
+type ChannelDeletedEvent struct{}
+type ChannelRenameEvent struct{}
+type ChannelArchiveEvent struct{}
+type ChannelUnarchiveEvent struct{}
+type ChannelHistoryChangedEvent struct{}
 
 // ##################################################
 
 type DoNotDisturbUpdatedEvent struct{}
-
 type DoNotDisturbUpdatedUserEvent struct{}
 
 // ##################################################
 
 type ReactionAddedEvent struct{}
-
 type ReactionRemovedEvent struct{}
 
 // ##################################################
@@ -184,5 +163,4 @@ type ImHistoryChangedEvent struct {
 
 // ##################################################
 
-type GroupMarkedEvent struct {
-}
+type GroupMarkedEvent struct{}
