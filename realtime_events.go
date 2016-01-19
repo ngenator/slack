@@ -1,10 +1,8 @@
-package realtime
+package slack
 
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/ngenator/slack"
 )
 
 var EventTypes = map[string]interface{}{
@@ -44,19 +42,19 @@ func GetEventType(e *Event) interface{} {
 				if MessageEventType, ok := MessageEventTypes[e.SubType]; ok {
 					return MessageEventType
 				}
-				slack.ErrorLog.Println("MessageEventType not found:", e.SubType)
+				ErrorLog.Println("MessageEventType not found:", e.SubType)
 			}
 		}
 		return EventType
 	}
-	slack.ErrorLog.Println("EventType not found:", e.Type)
+	ErrorLog.Println("EventType not found:", e.Type)
 
 	return nil
 }
 
 func UnmarshalRaw(raw *json.RawMessage, event interface{}) error {
 	if err := json.Unmarshal(*raw, &event); err != nil {
-		slack.ErrorLog.Printf("error unmarshaling %T to %T:\n\t%+[1]v\n", raw, event)
+		ErrorLog.Printf("error unmarshaling %T to %T:\n\t%+[1]v\n", raw, event)
 		return err
 	}
 	return nil
@@ -86,28 +84,28 @@ type PongEvent struct {
 // ##################################################
 
 type PresenceChangeEvent struct {
-	Presence string       `json:"presence,omitempty"`
-	UserID   slack.UserID `json:"user,omitempty"`
+	Presence string `json:"presence,omitempty"`
+	UserID   UserID `json:"user,omitempty"`
 }
 
 type ManualPresenceChangeEvent struct{}
 
 type UserTypingEvent struct {
-	ChannelID slack.ChannelID `json:"channel,omitempty"`
-	UserID    slack.UserID    `json:"user,omitempty"`
+	ChannelID ChannelID `json:"channel,omitempty"`
+	UserID    UserID    `json:"user,omitempty"`
 }
 
 // ##################################################
 
 type ChannelMarkedEvent struct {
-	ChannelID           slack.ChannelID       `json:"channel,omitempty"`
-	Timestamp           slack.UniqueTimestamp `json:"ts,omitempty"`
-	UnreadCount         int                   `json:"unread_count,omitempty"`
-	UnreadCountDisplay  int                   `json:"unread_count_display,omitempty"`
-	NumMentions         int                   `json:"num_mentions,omitempty"`
-	NumMentionsDisplay  int                   `json:"num_mentions_display,omitempty"`
-	MentionCount        int                   `json:"mention_count,omitempty"`
-	MentionCountDisplay int                   `json:"mention_count_display,omitempty"`
+	ChannelID           ChannelID       `json:"channel,omitempty"`
+	Timestamp           UniqueTimestamp `json:"ts,omitempty"`
+	UnreadCount         int             `json:"unread_count,omitempty"`
+	UnreadCountDisplay  int             `json:"unread_count_display,omitempty"`
+	NumMentions         int             `json:"num_mentions,omitempty"`
+	NumMentionsDisplay  int             `json:"num_mentions_display,omitempty"`
+	MentionCount        int             `json:"mention_count,omitempty"`
+	MentionCountDisplay int             `json:"mention_count_display,omitempty"`
 }
 
 type ChannelCreatedEvent struct{}
@@ -132,33 +130,33 @@ type ReactionRemovedEvent struct{}
 // ##################################################
 
 type ImMarkedEvent struct {
-	ChannelID           slack.ChannelID       `json:"channel,omitempty"`
-	Timestamp           slack.UniqueTimestamp `json:"ts,omitempty"`
-	DmCount             int                   `json:"dm_count,omitempty"`
-	UnreadCountDisplay  int                   `json:"unread_count_display,omitempty"`
-	NumMentionsDisplay  int                   `json:"num_mentions_display,omitempty"`
-	MentionCountDisplay int                   `json:"mention_count_display,omitempty"`
+	ChannelID           ChannelID       `json:"channel,omitempty"`
+	Timestamp           UniqueTimestamp `json:"ts,omitempty"`
+	DmCount             int             `json:"dm_count,omitempty"`
+	UnreadCountDisplay  int             `json:"unread_count_display,omitempty"`
+	NumMentionsDisplay  int             `json:"num_mentions_display,omitempty"`
+	MentionCountDisplay int             `json:"mention_count_display,omitempty"`
 }
 
 type ImCreatedEvent struct {
-	UserID  slack.UserID    `json:"user,omitempty"`
-	Channel slack.IMChannel `json:"channel,omitempty"`
+	UserID  UserID    `json:"user,omitempty"`
+	Channel IMChannel `json:"channel,omitempty"`
 }
 
 type ImOpenEvent struct {
-	UserID    slack.UserID    `json:"user,omitempty"`
-	ChannelID slack.ChannelID `json:"channel,omitempty"`
+	UserID    UserID    `json:"user,omitempty"`
+	ChannelID ChannelID `json:"channel,omitempty"`
 }
 
 type ImCloseEvent struct {
-	UserID    slack.UserID    `json:"user,omitempty"`
-	ChannelID slack.ChannelID `json:"channel,omitempty"`
+	UserID    UserID    `json:"user,omitempty"`
+	ChannelID ChannelID `json:"channel,omitempty"`
 }
 
 type ImHistoryChangedEvent struct {
-	Latest         slack.UniqueTimestamp `json:"latest,omitempty"`
-	Timestamp      slack.UniqueTimestamp `json:"ts,omitempty"`
-	EventTimestamp slack.UniqueTimestamp `json:"event_ts,omitempty"`
+	Latest         UniqueTimestamp `json:"latest,omitempty"`
+	Timestamp      UniqueTimestamp `json:"ts,omitempty"`
+	EventTimestamp UniqueTimestamp `json:"event_ts,omitempty"`
 }
 
 // ##################################################

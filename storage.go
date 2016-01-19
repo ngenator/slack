@@ -10,16 +10,16 @@ type Storage struct {
 	Users    map[UserID]*User
 }
 
-// GetUser gets a user from a UserID
-func (s *Storage) GetUser(id UserID) (*User, error) {
+// FindUser gets a user from a UserID if it's been stored
+func (s *Storage) FindUser(id UserID) (*User, error) {
 	if user, ok := s.Users[id]; ok {
 		return user, nil
 	}
 	return nil, fmt.Errorf("User not found: %s", id)
 }
 
-// GetChannel gets a Channel from a ChannelID
-func (s *Storage) GetChannel(id ChannelID) (*Channel, error) {
+// FindChannel gets a Channel from a ChannelID if it's been stored
+func (s *Storage) FindChannel(id ChannelID) (*Channel, error) {
 	if channel, ok := s.Channels[id]; ok {
 		return channel, nil
 	}

@@ -1,28 +1,28 @@
-package api
+package slack
 
 import (
 	"fmt"
 )
 
-type Error string
+type APIError string
 
-func (e *Error) MarshalJSON() ([]byte, error) {
-	if message, ok := ErrorMessages[*e]; ok {
+func (e *APIError) MarshalJSON() ([]byte, error) {
+	if message, ok := APIErrorMessages[*e]; ok {
 		return []byte(fmt.Sprint("%s: %s", e, message)), nil
 	}
 	return []byte(string(*e)), nil
 }
 
-func (e *Error) UnmarshalJSON(b []byte) error {
-	*e = Error(b)
+func (e *APIError) UnmarshalJSON(b []byte) error {
+	*e = APIError(b)
 	return nil
 }
 
-func (e *Error) String() string {
+func (e *APIError) String() string {
 	return string(*e)
 }
 
-var ErrorMessages = map[Error]string{
+var APIErrorMessages = map[APIError]string{
 	// common
 	"not_authed":       "No authentication token provided.",
 	"invalid_auth":     "Invalid authentication token.",
