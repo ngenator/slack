@@ -11,17 +11,17 @@ import (
 
 const APIBaseURL = "https://slack.com/api"
 
-type Response struct {
+type APIResponse struct {
 	Ok    bool   `json:"ok"`
 	Error string `json:"error,omitempty"`
 }
 
-type Client struct {
+type APIClient struct {
 	Token  string
 	client *http.Client
 }
 
-func (c *Client) Get(method string, params url.Values) ([]byte, error) {
+func (c *APIClient) Call(method string, params url.Values) ([]byte, error) {
 	params.Add("token", c.Token)
 
 	u := fmt.Sprintf("%s/%s?%s", APIBaseURL, method, params.Encode())
@@ -42,20 +42,20 @@ func (c *Client) Get(method string, params url.Values) ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) AddReaction(name, channel, timestamp string) error {
+func (c *APIClient) AddReaction(name, channel, timestamp string) error {
 	values := url.Values{}
 	values.Add("name", name)
 	values.Add("channel", channel)
 	values.Add("timestamp", timestamp)
 
-	resp, err := c.Get("reactions.add", values)
+	resp, err := c.Call("reactions.add", values)
 	if err != nil {
 		ErrorLog.Printf("error sending reaction: %v\n", err)
 		return err
 	}
 
 	raw := json.RawMessage{}
-	response := Response{}
+	response := APIResponse{}
 
 	if err := json.Unmarshal(resp, &raw); err != nil {
 		ErrorLog.Printf("error unmarshaling raw reaction response: %v\n", err)
@@ -74,8 +74,8 @@ func (c *Client) AddReaction(name, channel, timestamp string) error {
 	return errors.New(fmt.Sprintf("Response was not ok! %s", response.Error))
 }
 
-func NewClient(token string) *Client {
-	return &Client{
+func NewAPIClient(token string) *APIClient {
+	return &APIClient{
 		token,
 		&http.Client{},
 	}
