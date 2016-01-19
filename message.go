@@ -7,7 +7,7 @@ type Message struct {
 	ChannelID   ChannelID            `json:"channel,omitempty"`
 	Timestamp   UniqueTimestamp      `json:"ts,omitempty"`
 	Attachments []*MessageAttachment `json:"attachments,omitempty"`
-	ReplyTo     int                  `json:"reply_to,omitempty"`
+	ReplyTo     int64                `json:"reply_to,omitempty"`
 }
 
 // MessageAttachment type
