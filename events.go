@@ -38,11 +38,14 @@ func GetEventType(e *Event) interface{} {
 	if EventType, ok := EventTypes[e.Type]; ok {
 		switch e.Type {
 		case "message":
-			if MessageEventType, ok := MessageEventTypes[e.SubType]; ok {
-				return MessageEventType
-			} else {
-				ErrorLog.Println("MessageEventType not found:", e.SubType)
+			if e.SubType != "" {
+				if MessageEventType, ok := MessageEventTypes[e.SubType]; ok {
+					return MessageEventType
+				} else {
+					ErrorLog.Println("MessageEventType not found:", e.SubType)
+				}
 			}
+			return EventType
 		default:
 			return EventType
 		}
