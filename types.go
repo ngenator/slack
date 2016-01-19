@@ -37,9 +37,9 @@ type UserProfile struct {
 type Channel struct {
 	ID ChannelID `json:"id,omitempty"`
 
-	Name    string    `json:"name,omitempty"`
-	Creator UserID    `json:"creator,omitempty"`
-	Created Timestamp `json:"created,omitempty"`
+	Name    string     `json:"name,omitempty"`
+	Creator UserID     `json:"creator,omitempty"`
+	Created *Timestamp `json:"created,omitempty"`
 
 	Topic   *ChannelDescription `json:"topic,omitempty"`
 	Purpose *ChannelDescription `json:"purpose,omitempty"`
@@ -57,18 +57,20 @@ type Channel struct {
 
 // ChannelDescription type
 type ChannelDescription struct {
-	Value   string    `json:"string,omitempty"`
-	Creator UserID    `json:"creator,omitempty"`
-	LastSet Timestamp `json:"last_set,omitempty"`
+	Value   string     `json:"string,omitempty"`
+	Creator UserID     `json:"creator,omitempty"`
+	LastSet *Timestamp `json:"last_set,omitempty"`
 }
 
-type IM struct {
-	ID string `json:"id,omitempty"`
-
-	UserID        UserID    `json:"user,omitempty"`
-	IsIM          bool      `json:"is_im,omitempty"`
-	IsUserDeleted bool      `json:"is_user_deleted,omitempty"`
-	Created       Timestamp `json:"created,omitempty"`
+type IMChannel struct {
+	UserID             UserID     `json:"user,omitempty"`
+	IsIM               bool       `json:"is_im,omitempty"`
+	IsOpen             bool       `json:"is_open,omitempty"`
+	IsUserDeleted      bool       `json:"is_user_deleted,omitempty"`
+	Created            *Timestamp `json:"created,omitempty"`
+	Latest             *Message   `json:"latest,omitempty"`
+	UnreadCount        int        `json:"unread_count,omitempty"`
+	UnreadCountDisplay int        `json:"unread_count_display,omitempty"`
 }
 
 // Message type
