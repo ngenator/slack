@@ -14,33 +14,33 @@ type OutgoingMessage struct {
 	Type string `json:"type"`
 }
 
-// Realtime is a client that uses the slack realtime api
-type Realtime struct {
+// Client is a client that uses the slack realtime api
+type Client struct {
 	done chan bool
 	ws   *websocket.Conn
 }
 
 // Dial connects to the given websocket address
-func (r *Realtime) Dial(url, origin string) error {
+func (c *Client) Dial(url, origin string) error {
 	ws, err := websocket.Dial(url, "", origin)
 	if err != nil {
 		slack.ErrorLog.Printf("error dialing websocket address: %v\n\t%s\n", err, url)
 		return err
 	}
 
-	r.ws = ws
+	c.ws = ws
 
 	return nil
 }
 
 // Stop stops the processing of new events
-func (r *Realtime) Stop() {
-	r.done <- true
+func (c *Client) Stop() {
+	c.done <- true
 }
 
 // ReceiveEvents gets events from the websocket and pushes them through a chan
-func (r *Realtime) ReceiveEvents() <-chan interface{} {
-	r.isReady()
+func (c *Client) ReceiveEvents() <-chan interface{} {
+	c.isReady()
 
 	events := make(chan interface{})
 	raw := make(chan *json.RawMessage)
@@ -51,15 +51,15 @@ func (r *Realtime) ReceiveEvents() <-chan interface{} {
 
 		for {
 			select {
-			case <-r.done:
+			case <-c.done:
 				slack.InfoLog.Println("Stopped receiving events!")
-				r.done <- true
+				c.done <- true
 				return
 			default:
 				e := &json.RawMessage{}
-				if err := websocket.JSON.Receive(r.ws, &e); err != nil {
+				if err := websocket.JSON.Receive(c.ws, &e); err != nil {
 					slack.ErrorLog.Printf("error receiving raw event: %v\n", err)
-					r.done <- true
+					c.done <- true
 				} else {
 					raw <- e
 				}
@@ -76,14 +76,14 @@ func (r *Realtime) ReceiveEvents() <-chan interface{} {
 
 		for {
 			select {
-			case <-r.done:
+			case <-c.done:
 				slack.InfoLog.Println("Stopped processing events!")
-				r.done <- true
+				c.done <- true
 				return
 			case <-tick.C:
-				ts, err := r.ping()
+				ts, err := c.ping()
 				if err != nil {
-					r.done <- true
+					c.done <- true
 				}
 				slack.InfoLog.Printf("Ping! %d\n", ts)
 			case e := <-raw:
@@ -104,10 +104,10 @@ func (r *Realtime) ReceiveEvents() <-chan interface{} {
 }
 
 // Send sends a message via the websocket
-func (r *Realtime) Send(message interface{}) error {
-	r.isReady()
+func (c *Client) Send(message interface{}) error {
+	c.isReady()
 
-	err := websocket.JSON.Send(r.ws, &message)
+	err := websocket.JSON.Send(c.ws, &message)
 	if err != nil {
 		slack.ErrorLog.Printf("error sending realtime message: %v\n", err)
 		return err
@@ -116,15 +116,15 @@ func (r *Realtime) Send(message interface{}) error {
 	return nil
 }
 
-func (r *Realtime) isReady() {
-	if r.ws == nil || !r.ws.IsClientConn() {
-		slack.ErrorLog.Panic("r.ws cannot be nil! did you call Connect()?")
+func (c *Client) isReady() {
+	if c.ws == nil || !c.ws.IsClientConn() {
+		slack.ErrorLog.Panic("c.ws cannot be nil! did you call Connect()?")
 	}
 }
 
-func (r *Realtime) ping() (int64, error) {
+func (c *Client) ping() (int64, error) {
 	ts := time.Now().Unix()
-	if err := r.Send(OutgoingMessage{ts, "ping"}); err != nil {
+	if err := c.Send(OutgoingMessage{ts, "ping"}); err != nil {
 		slack.ErrorLog.Printf("error sending ping: %v\n", err)
 		return ts, err
 	}
@@ -132,8 +132,8 @@ func (r *Realtime) ping() (int64, error) {
 }
 
 // New creates a Realtime client
-func New(token string) *Realtime {
-	return &Realtime{
+func New(token string) *Client {
+	return &Client{
 		make(chan bool),
 		new(websocket.Conn),
 	}
