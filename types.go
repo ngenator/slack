@@ -51,6 +51,7 @@ type Channel struct {
 
 	LastRead    SlackTimestamp `json:"last_read,omitempty"`
 	Latest      *Message       `json:"latest,omitempty"`
+	NumMembers  int            `json:"num_members,omitempty"`
 	Members     []UserID       `json:"members,omitempty"`
 	UnreadCount int            `json:"unread_count,omitempty"`
 }
