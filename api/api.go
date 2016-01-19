@@ -32,8 +32,8 @@ type Client struct {
 
 func (c *Client) raiseOnError(response interface{}) error {
 	r := response.(Response)
-	if !r.Ok {
-		msg := fmt.Sprintf("response not ok: %s", r.Error)
+	if !c.Ok {
+		msg := fmt.Sprintf("response not ok: %s", c.Error)
 		log.Println(msg)
 		return fmt.Errorf(msg)
 	}
