@@ -24,10 +24,8 @@ type OutgoingMessage struct {
 type RealtimeClient struct {
 	APIClient
 	Slack
-	RawEvents chan *json.RawMessage
-	Events    chan interface{}
-	done      chan bool
-	ws        *websocket.Conn
+	done chan bool
+	ws   *websocket.Conn
 }
 
 func (r *RealtimeClient) Connect() error {
@@ -63,68 +61,72 @@ func (r *RealtimeClient) Connect() error {
 	return nil
 }
 
-func (r *RealtimeClient) Start() chan bool {
-	done := make(chan bool)
-	r.ReceiveRawEvents(done)
-	r.ProcessEvents(done)
-	return done
+func (r *RealtimeClient) Stop() {
+	r.done <- true
 }
 
-func (r *RealtimeClient) ReceiveRawEvents(done chan bool) {
+func (r *RealtimeClient) ReceiveEvents() <-chan interface{} {
+	r.isReady()
+
+	events := make(chan interface{})
+	raw := make(chan *json.RawMessage)
+
+	// raw event producer, collecting from the websocket and sending to chan
 	go func() {
-		defer close(r.RawEvents)
+		defer close(raw)
+
+		for {
+			select {
+			case <-r.done:
+				Log.Println("Stopped receiving events!")
+				r.done <- true
+				return
+			default:
+				e := &json.RawMessage{}
+				if err := websocket.JSON.Receive(r.ws, &e); err != nil {
+					ErrorLog.Printf("error receiving raw event: %v\n", err)
+					r.done <- true
+				} else {
+					raw <- e
+				}
+			}
+		}
+	}()
+
+	// consumer of raw events, producer of known slack events
+	go func() {
+		defer close(events)
 
 		tick := time.NewTicker(30 * time.Second)
 		defer tick.Stop()
 
 		for {
-			r.isReady()
-
 			select {
-			case <-done:
-				Log.Println("Stopped processing raw events!")
-				done <- true
-				break
+			case <-r.done:
+				Log.Println("Stopped processing events!")
+				r.done <- true
+				return
 			case <-tick.C:
 				ts, err := r.ping()
-				Log.Printf("Ping! %d\n", ts)
 				if err != nil {
-					done <- true
+					r.done <- true
 				}
-			default:
-				raw := &json.RawMessage{}
-				if err := websocket.JSON.Receive(r.ws, &raw); err != nil {
-					ErrorLog.Printf("error unmarshaling raw event: %v\n", err)
-				} else {
-					r.RawEvents <- raw
-				}
-			}
-		}
-	}()
-}
+				Log.Printf("Ping! %d\n", ts)
+			case e := <-raw:
+				EventLog.Println(string(*e))
 
-func (r *RealtimeClient) ProcessEvents(done chan bool) {
-	go func() {
-		defer close(r.Events)
-
-		for {
-			select {
-			case <-done:
-				Log.Println("Stopped processing events!")
-				done <- true
-				break
-			case raw := <-r.RawEvents:
-				EventLog.Println(string(*raw))
 				realtimeEvent := &Event{}
-				if err := UnmarshalRaw(raw, &realtimeEvent); err == nil {
+				if err := UnmarshalRaw(e, &realtimeEvent); err == nil {
 					event := GetEventType(realtimeEvent)
-					if err := UnmarshalRaw(raw, &event); err == nil {
-						r.Events <- event
+					if err := UnmarshalRaw(e, &event); err == nil {
+						events <- event
 					}
 				}
 			}
 		}
 	}()
+
+	return events
 }
 
 func (r *RealtimeClient) Send(message interface{}) error {
@@ -158,8 +160,6 @@ func NewRealtimeClient(token string) *RealtimeClient {
 	return &RealtimeClient{
 		*NewAPIClient(token),
 		*NewSlack(),
-		make(chan *json.RawMessage),
-		make(chan interface{}),
 		make(chan bool),
 		new(websocket.Conn),
 	}
