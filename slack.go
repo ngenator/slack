@@ -16,6 +16,14 @@ func (s *Slack) ConnectRealtime() error {
 		return err
 	}
 
+	for _, u := range response.Users {
+		s.Users[u.ID] = u
+	}
+
+	for _, c := range response.Channels {
+		s.Channels[c.ID] = c
+	}
+
 	return nil
 }
 
