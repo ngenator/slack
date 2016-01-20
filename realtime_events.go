@@ -7,31 +7,67 @@ import (
 
 var EventTypes = map[string]interface{}{
 	"hello": &HelloEvent{},
-	"pong":  &PongEvent{},
+
+	"pong": &PongEvent{},
 
 	"message": &MessageEvent{},
 
 	"user_typing": &UserTypingEvent{},
 
-	"presence_change":        &PresenceChangeEvent{},
-	"manual_presence_change": &ManualPresenceChangeEvent{},
+	"channel_marked":          &ChannelMarkedEvent{},
+	"channel_created":         &ChannelCreatedEvent{},
+	"channel_joined":          &ChannelJoinedEvent{},
+	"channel_left":            &ChannelLeftEvent{},
+	"channel_deleted":         &ChannelDeletedEvent{},
+	"channel_rename":          &ChannelRenameEvent{},
+	"channel_archive":         &ChannelArchiveEvent{},
+	"channel_unarchive":       &ChannelUnarchiveEvent{},
+	"channel_history_changed": &Event{},
 
-	"channel_marked":    &ChannelMarkedEvent{},
-	"channel_created":   &ChannelCreatedEvent{},
-	"channel_joined":    &ChannelJoinedEvent{},
-	"channel_left":      &ChannelLeftEvent{},
-	"channel_deleted":   &ChannelDeletedEvent{},
-	"channel_rename":    &ChannelRenameEvent{},
-	"channel_archive":   &ChannelArchiveEvent{},
-	"channel_unarchive": &ChannelUnarchiveEvent{},
-
-	"group_marked": &GroupMarkedEvent{},
+	"dnd_updated":      &Event{},
+	"dnd_updated_user": &Event{},
 
 	"im_marked":          &ImMarkedEvent{},
 	"im_created":         &ImCreatedEvent{},
 	"im_open":            &ImOpenEvent{},
 	"im_close":           &ImCloseEvent{},
 	"im_history_changed": &ImHistoryChangedEvent{},
+
+	"group_joined":          &Event{},
+	"group_left":            &Event{},
+	"group_open":            &Event{},
+	"group_close":           &Event{},
+	"group_archive":         &Event{},
+	"group_unarchive":       &Event{},
+	"group_rename":          &Event{},
+	"group_marked":          &GroupMarkedEvent{},
+	"group_history_changed": &Event{},
+
+	"file_created":         &Event{},
+	"file_shared":          &Event{},
+	"file_unshared":        &Event{},
+	"file_public":          &Event{},
+	"file_private":         &Event{},
+	"file_change":          &Event{},
+	"file_deleted":         &Event{},
+	"file_comment_added":   &Event{},
+	"file_comment_edited":  &Event{},
+	"file_comment_deleted": &Event{},
+
+	"pin_added":   &Event{},
+	"pin_removed": &Event{},
+
+	"presence_change":        &PresenceChangeEvent{},
+	"manual_presence_change": &ManualPresenceChangeEvent{},
+
+	"pref_change": &Event{},
+
+	"user_change": &Event{},
+
+	"team_join": &Event{},
+
+	"star_added":   &Event{},
+	"star_removed": &Event{},
 }
 
 func GetEventType(e *Event) interface{} {
@@ -162,3 +198,8 @@ type ImHistoryChangedEvent struct {
 // ##################################################
 
 type GroupMarkedEvent struct{}
+
+// ##################################################
+
+type FileCreatedEvent struct{}
+type FileSharedEvent struct{}
