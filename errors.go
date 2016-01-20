@@ -8,7 +8,7 @@ type APIError string
 
 func (e *APIError) MarshalJSON() ([]byte, error) {
 	if message, ok := APIErrorMessages[*e]; ok {
-		return []byte(fmt.Sprint("%s: %s", e, message)), nil
+		return []byte(fmt.Sprintf("%s: %s", e, message)), nil
 	}
 	return []byte(string(*e)), nil
 }
