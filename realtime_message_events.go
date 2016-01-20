@@ -36,7 +36,8 @@ type MessageEvent struct {
 }
 
 type BotMessageEvent struct {
-	BotID string `json:"bot_id,omitempty"`
+	BotID    string `json:"bot_id,omitempty"`
+	UserName string `json:"username,omitempty"`
 	Message
 }
 
