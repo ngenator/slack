@@ -60,6 +60,7 @@ func (c *APIClient) Call(method string, params *url.Values, response interface{}
 	return nil
 }
 
+// TODO: handle optional args
 func (c *APIClient) RTMStart() (*RTMStartResponse, error) {
 	values := url.Values{}
 	// values.Add("mpim_aware", "1")
@@ -96,6 +97,22 @@ func (c *APIClient) GetUser(id string) (*User, error) {
 	}
 
 	return response.User, nil
+}
+
+// TODO: handle more of the optional args
+func (c *APIClient) PostChatMessage(channel, text, iconEmoji string) error {
+	values := url.Values{}
+	values.Add("channel", channel)
+	values.Add("text", text)
+	values.Add("icon_emoji", iconEmoji)
+	values.Add("link_names", "1")
+
+	response := Response{}
+	if err := c.Call("chat.postMessage", &values, &response); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewAPIClient(token string) *APIClient {
