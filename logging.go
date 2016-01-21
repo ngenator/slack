@@ -44,6 +44,5 @@ func logToFile(logger *log.Logger, filename string) {
 	if err != nil {
 		logger.Fatalf("error opening file: %v", err)
 	}
-
 	logger.SetOutput(f)
 }

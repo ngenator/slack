@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// TODO: add sqlite3 db for this
 // Storage stores information about the current state
 type Storage struct {
 	Channels map[ChannelID]*Channel

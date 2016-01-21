@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// TODO: create event structs for each event
 var EventTypes = map[string]interface{}{
 	"hello": &HelloEvent{},
 

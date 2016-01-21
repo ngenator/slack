@@ -28,6 +28,7 @@ func (e *APIError) String() string {
 	return string(*e)
 }
 
+// TODO: add the rest of the error messages
 var APIErrorMessages = map[string]string{
 	// common
 	"not_authed":       "No authentication token provided.",
