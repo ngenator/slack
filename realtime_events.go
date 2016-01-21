@@ -68,23 +68,45 @@ var EventTypes = map[string]interface{}{
 
 	"star_added":   &Event{},
 	"star_removed": &Event{},
+
+	"reaction_added":   &Event{},
+	"reaction_removed": &Event{},
+
+	"emoji_changed": &Event{},
+
+	"commands_changed": &Event{},
+
+	"team_plan_change":     &Event{},
+	"team_pref_change":     &Event{},
+	"team_rename":          &Event{},
+	"team_domain_changed":  &Event{},
+	"email_domain_changed": &Event{},
+	"team_profile_change":  &Event{},
+	"team_profile_delete":  &Event{},
+	"team_profile_reorder": &Event{},
+
+	"bot_added":   &Event{},
+	"bot_changed": &Event{},
+
+	"accounts_changed": &Event{},
+
+	"subteam_created":      &Event{},
+	"subteam_updated":      &Event{},
+	"subteam_self_added":   &Event{},
+	"subteam_self_removed": &Event{},
 }
 
 func GetEventType(e *Event) interface{} {
 	if EventType, ok := EventTypes[e.Type]; ok {
-		switch e.Type {
-		case "message":
-			if e.SubType != "" {
-				if MessageEventType, ok := MessageEventTypes[e.SubType]; ok {
-					return MessageEventType
-				}
-				ErrorLog.Println("MessageEventType not found:", e.SubType)
+		if e.Type == "message" && e.SubType != "" {
+			if MessageEventType, ok := MessageEventTypes[e.SubType]; ok {
+				return MessageEventType
 			}
+			ErrorLog.Println("MessageEventType not found:", e.SubType)
 		}
 		return EventType
 	}
 	ErrorLog.Println("EventType not found:", e.Type)
-
 	return nil
 }
 
