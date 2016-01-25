@@ -34,7 +34,10 @@ func (c *RealtimeClient) Dial(url, origin string) error {
 
 // Stop stops the processing of new events
 func (c *RealtimeClient) Stop() {
+	InfoLog.Println("Stopping realtime event receiver...")
 	c.done <- true
+	<-c.done
+	InfoLog.Println("Done!")
 }
 
 // ReceiveEvents gets events from the websocket and pushes them through a chan
