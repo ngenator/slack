@@ -1,9 +1,6 @@
 package slack
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "encoding/json"
 
 // TODO: create event structs for each event
 var EventTypes = map[string]interface{}{
@@ -125,15 +122,6 @@ type Event struct {
 	Error   *EventError `json:"error,omitempty"`
 }
 
-type EventError struct {
-	Code    int    `json:"code,omitempty"`
-	Message string `json:"msg,omitempty"`
-}
-
-func (e *EventError) String() string {
-	return fmt.Sprintf("%d: %s", e.Code, e.Message)
-}
-
 type HelloEvent struct{}
 
 type PongEvent struct {
@@ -191,7 +179,7 @@ type ReactionRemovedEvent struct{}
 type ImMarkedEvent struct {
 	ChannelID           ChannelID       `json:"channel,omitempty"`
 	Timestamp           UniqueTimestamp `json:"ts,omitempty"`
-	DmCount             int             `json:"dm_count,omitempty"`
+	DMCount             int             `json:"dm_count,omitempty"`
 	UnreadCountDisplay  int             `json:"unread_count_display,omitempty"`
 	NumMentionsDisplay  int             `json:"num_mentions_display,omitempty"`
 	MentionCountDisplay int             `json:"mention_count_display,omitempty"`
