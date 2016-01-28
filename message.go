@@ -2,12 +2,15 @@ package slack
 
 // Message type
 type Message struct {
-	Text        string               `json:"text,omitempty"`
-	UserID      UserID               `json:"user,omitempty"`
-	ChannelID   ChannelID            `json:"channel,omitempty"`
-	Timestamp   UniqueTimestamp      `json:"ts,omitempty"`
+	Text      string          `json:"text,omitempty"`
+	UserID    UserID          `json:"user,omitempty"`
+	ChannelID ChannelID       `json:"channel,omitempty"`
+	Timestamp UniqueTimestamp `json:"ts,omitempty"`
+
 	Attachments []*MessageAttachment `json:"attachments,omitempty"`
 	ReplyTo     int64                `json:"reply_to,omitempty"`
+
+	MarkdownIn []string `json:"mrkdwn_in,omitempty"`
 }
 
 // MessageAttachment type
