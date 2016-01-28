@@ -1,48 +1,56 @@
 package slack
 
 import (
+	"io"
 	"log"
 	"os"
 )
 
-// ErrorLog
-var ErrorLog *log.Logger
-
-// InfoLog
-var InfoLog *log.Logger
-
-// EventLog
-var EventLog *log.Logger
-
-// Log
-var Log *log.Logger
-
-func init() {
-	ErrorLog = log.New(os.Stderr, "[ERROR]\t", log.LstdFlags|log.Lshortfile)
-	InfoLog = log.New(os.Stdout, "[INFO]\t", log.LstdFlags)
-	EventLog = log.New(os.Stdout, "[EVENT]\t", log.LstdFlags)
-	Log = log.New(os.Stdout, "[LOG]\t", log.LstdFlags)
+type Log struct {
+	*log.Logger
+	enabled bool
 }
 
-// LogErrorsToFile redirects the ErrorLog output to the given file name
-func LogErrorsToFile(filename string) {
-	logToFile(ErrorLog, filename)
-}
-
-// LogEventsToFile redirects the EventLog output to the given file name
-func LogEventsToFile(filename string) {
-	logToFile(EventLog, filename)
-}
-
-// LogInfoToFile redirects the InfoLog output to the given file name
-func LogInfoToFile(filename string) {
-	logToFile(InfoLog, filename)
-}
-
-func logToFile(logger *log.Logger, filename string) {
+func (l *Log) ToFile(filename string) {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		logger.Fatalf("error opening file: %v", err)
+		l.Logger.Fatalf("error opening file: %v", err)
 	}
-	logger.SetOutput(f)
+	l.Logger.SetOutput(f)
+}
+
+func (l *Log) Output(calldepth int, s string) error {
+	if l.enabled {
+		return l.Logger.Output(calldepth, s)
+	}
+	return nil
+}
+
+func (l *Log) Disable() {
+	l.enabled = false
+}
+
+func (l *Log) Enable() {
+	l.enabled = true
+}
+
+func NewLog(out io.Writer, prefix string, flag int) *Log {
+	return &Log{
+		log.New(out, prefix, flag),
+		true,
+	}
+}
+
+var (
+	ErrorLog *Log
+	InfoLog  *Log
+	DebugLog *Log
+	EventLog *Log
+)
+
+func init() {
+	ErrorLog = NewLog(os.Stderr, "[ERROR]\t", log.LstdFlags|log.Lshortfile)
+	InfoLog = NewLog(os.Stdout, "[INFO]\t", log.LstdFlags)
+	DebugLog = NewLog(os.Stdout, "[DEBUG]\t", log.LstdFlags)
+	EventLog = NewLog(os.Stdout, "[EVENT]\t", log.LstdFlags)
 }
