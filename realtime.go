@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"golang.org/x/net/websocket"
+	"io"
 )
 
 // OutgoingMessage type
@@ -47,60 +48,8 @@ func (c *RealtimeClient) ReceiveEvents() <-chan interface{} {
 	events := make(chan interface{})
 	raw := make(chan *json.RawMessage)
 
-	// raw event producer, collecting from the websocket and sending to chan
-	go func() {
-		defer close(raw)
-
-		for {
-			select {
-			case <-c.done:
-				InfoLog.Println("Stopped receiving events!")
-				c.done <- true
-				return
-			default:
-				e := &json.RawMessage{}
-				if err := websocket.JSON.Receive(c.ws, &e); err != nil {
-					ErrorLog.Printf("error receiving raw event: %v\n", err)
-					c.done <- true
-				} else {
-					raw <- e
-				}
-			}
-		}
-	}()
-
-	// consumer of raw events, producer of known slack events
-	go func() {
-		defer close(events)
-
-		tick := time.NewTicker(30 * time.Second)
-		defer tick.Stop()
-
-		for {
-			select {
-			case <-c.done:
-				InfoLog.Println("Stopped processing events!")
-				c.done <- true
-				return
-			case <-tick.C:
-				ts, err := c.ping()
-				if err != nil {
-					c.done <- true
-				}
-				InfoLog.Printf("Ping! %d\n", ts)
-			case e := <-raw:
-				EventLog.Println(string(*e))
-
-				realtimeEvent := &Event{}
-				if err := UnmarshalRaw(e, &realtimeEvent); err == nil {
-					event := GetEventType(realtimeEvent)
-					if err := UnmarshalRaw(e, &event); err == nil {
-						events <- event
-					}
-				}
-			}
-		}
-	}()
+	go c.receiveRawEvents(raw)
+	go c.processRawEvents(raw, events)
 
 	return events
 }
@@ -116,6 +65,69 @@ func (c *RealtimeClient) Send(message interface{}) error {
 	}
 
 	return nil
+}
+
+func (c *RealtimeClient) receiveRawEvents(raw chan *json.RawMessage) {
+	defer close(raw)
+
+	for {
+		select {
+		case <-c.done:
+			InfoLog.Println("Stopped receiving events!")
+			c.done <- true
+			return
+		default:
+			e := &json.RawMessage{}
+			if err := websocket.JSON.Receive(c.ws, &e); err != nil {
+				if err == io.EOF {
+					ErrorLog.Println("received EOF")
+					if _, err := c.ping(); err != nil {
+						ErrorLog.Printf("ping attempt failed: %v\n", err)
+						c.done <- true
+					} else {
+						ErrorLog.Println("Continuing...")
+					}
+				} else {
+					ErrorLog.Printf("error receiving raw event: %v\n", err)
+					c.done <- true
+				}
+			} else {
+				raw <- e
+			}
+		}
+	}
+}
+
+func (c *RealtimeClient) processRawEvents(raw chan *json.RawMessage, events chan interface{}) {
+	defer close(events)
+
+	tick := time.NewTicker(30 * time.Second)
+	defer tick.Stop()
+
+	for {
+		select {
+		case <-c.done:
+			InfoLog.Println("Stopped processing events!")
+			c.done <- true
+			return
+		case <-tick.C:
+			ts, err := c.ping()
+			if err != nil {
+				c.done <- true
+			}
+			InfoLog.Printf("Ping! %d\n", ts)
+		case e := <-raw:
+			EventLog.Println(string(*e))
+
+			realtimeEvent := &Event{}
+			if err := UnmarshalRaw(e, &realtimeEvent); err == nil {
+				event := GetEventType(realtimeEvent)
+				if err := UnmarshalRaw(e, &event); err == nil {
+					events <- event
+				}
+			}
+		}
+	}
 }
 
 func (c *RealtimeClient) isReady() {
