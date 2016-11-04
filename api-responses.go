@@ -17,6 +17,17 @@ type UserResponse struct {
 	User *User `json:"user,omitempty"`
 	Response
 }
+
+type UserIDsResponse struct {
+	UserIDs []string `json:"users,omitempty"`
+	Response
+}
+
+type UserGroupUpdateResponse struct {
+	UserGroup *UserGroup `json:"usergroup,omitempty"`
+	Response
+}
+
 type AuthTestResponse struct {
 	UserName string `json:"user,omitempty"`
 	UserID   UserID `json:"user_id,omitempty"`

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const BaseURL = "https://slack.com/api"
@@ -109,6 +110,31 @@ func (c *APIClient) PostChatMessage(channel, text, iconEmoji string) error {
 
 	response := Response{}
 	if err := c.Call("chat.postMessage", &values, &response); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *APIClient) GetUserIDsInUserGroup(usergroup string) ([]string, error) {
+	values := url.Values{}
+	values.Add("usergroup", usergroup)
+
+	response := UserIDsResponse{}
+	if err := c.Call("usergroups.users.list", &values, &response); err != nil {
+		return nil, err
+	}
+
+	return response.UserIDs, nil
+}
+
+func (c *APIClient) UpdateUserIDsInUserGroup(userGroup string, userIDs []string) error {
+	values := url.Values{}
+	values.Add("usergroup", userGroup)
+	values.Add("users", strings.Join(userIDs, ","))
+
+	response := UserGroupUpdateResponse{}
+	if err := c.Call("usergroups.users.update", &values, &response); err != nil {
 		return err
 	}
 
