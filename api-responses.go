@@ -23,6 +23,11 @@ type UserIDsResponse struct {
 	Response
 }
 
+type UserGroupsResponse struct {
+	UserGroups []*UserGroup `json:"usergroups,omitempty"`
+	Response
+}
+
 type UserGroupUpdateResponse struct {
 	UserGroup *UserGroup `json:"usergroup,omitempty"`
 	Response
