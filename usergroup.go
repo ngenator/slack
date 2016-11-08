@@ -10,10 +10,10 @@ type UserGroup struct {
 	Description string `json:"name,omitempty"`
 	Handle      string `json:"handle,omitempty"`
 	Preferences struct {
-			    ChannelIDs []string `json:"channels,omitempty"`
-			    GroupIDs   []string `json:"groups,omitempty"`
-		    } `json:"prefs,omitempty"`
-	AutoType string `json:"auto_type,omitempty"`
-	UserCount int `json:"user_count,omitempty"`
-	UserIDs []string `json:"users,omitempty"`
+		ChannelIDs []string `json:"channels,omitempty"`
+		GroupIDs   []string `json:"groups,omitempty"`
+	} `json:"prefs,omitempty"`
+	AutoType  string   `json:"auto_type,omitempty"`
+	UserCount int      `json:"user_count,omitempty"`
+	UserIDs   []string `json:"users,omitempty"`
 }

@@ -2,22 +2,21 @@ package slack
 
 import (
 	"bytes"
-	"net/http"
 	"encoding/json"
-	"io/ioutil"
 	"errors"
+	"io/ioutil"
+	"net/http"
 )
-
 
 // SlashCommandResponse is a reply to a slash command
 type SlashCommandResponse struct {
-	Type        string        `json:"response_type,omitempty"`
-	Text        string        `json:"text,omitempty"`
-	ChannelID   string        `json:"channel,omitempty"`
-	Username    string        `json:"username,omitempty"`
-	IconURL     string        `json:"icon_url,omitempty"`
-	IconEmoji   string        `json:"icon_emoji,omitempty"`
-	UnfurlLinks bool          `json:"unfurl_links,omitempty"`
+	Type        string               `json:"response_type,omitempty"`
+	Text        string               `json:"text,omitempty"`
+	ChannelID   string               `json:"channel,omitempty"`
+	Username    string               `json:"username,omitempty"`
+	IconURL     string               `json:"icon_url,omitempty"`
+	IconEmoji   string               `json:"icon_emoji,omitempty"`
+	UnfurlLinks bool                 `json:"unfurl_links,omitempty"`
 	Attachments []*MessageAttachment `json:"attachments,omitempty"`
 }
 
