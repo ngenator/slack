@@ -103,10 +103,11 @@ func (c *APIClient) GetUser(id string) (*User, error) {
 }
 
 // TODO: handle more of the optional args
-func (c *APIClient) PostChatMessage(channel, text, iconEmoji string) error {
+func (c *APIClient) PostChatMessage(channel, text, username, iconEmoji string) error {
 	values := url.Values{}
 	values.Add("channel", channel)
 	values.Add("text", text)
+	values.Add("username", username)
 	values.Add("icon_emoji", iconEmoji)
 	values.Add("link_names", "1")
 
