@@ -33,11 +33,13 @@ func (c *APIClient) raiseOnError(raw json.RawMessage) error {
 }
 
 func (c *APIClient) Call(method string, params *url.Values, response interface{}) error {
-	params.Add("token", c.Token)
+	urlParams := url.Values{}
+	urlParams.Add("token", c.Token)
 
-	u := fmt.Sprintf("%s/%s?%s", BaseURL, method, params.Encode())
+	// Create the url from the BaseURL, api endpoint, and the api key
+	u := fmt.Sprintf("%s/%s?%s", BaseURL, method, urlParams.Encode())
 
-	resp, err := c.client.Get(u)
+	resp, err := c.client.Post(u, "application/x-www-form-urlencoded", strings.NewReader(params.Encode()))
 	if err != nil {
 		ErrorLog.Printf("error sending api request for %s: %v\n", method, err)
 		return err
@@ -118,6 +120,7 @@ func (c *APIClient) PostChatMessage(channel, text, iconEmoji string) error {
 
 func (c *APIClient) GetUserGroups() ([]*UserGroup, error) {
 	values := url.Values{}
+	values.Add("include_users", "1")
 
 	response := UserGroupsResponse{}
 	if err := c.Call("usergroups.list", &values, &response); err != nil {
@@ -150,6 +153,19 @@ func (c *APIClient) UpdateUserIDsInUserGroup(userGroup string, userIDs []string)
 	}
 
 	return nil
+}
+
+func (c *APIClient) GetUserDirectMessageChannel(userID string) (*Channel, error) {
+	values := url.Values{}
+	values.Add("user", userID)
+	values.Add("return_im", "1")
+
+	response := ChannelResponse{}
+	if err := c.Call("im.open", &values, &response); err != nil {
+		return nil, err
+	}
+
+	return response.Channel, nil
 }
 
 func NewAPIClient(token string) *APIClient {

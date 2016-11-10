@@ -33,6 +33,11 @@ type UserGroupUpdateResponse struct {
 	Response
 }
 
+type ChannelResponse struct {
+	Channel *Channel `json:"channel,omitempty"`
+	Response
+}
+
 type AuthTestResponse struct {
 	UserName string `json:"user,omitempty"`
 	UserID   UserID `json:"user_id,omitempty"`
