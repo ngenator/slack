@@ -18,6 +18,11 @@ type UserResponse struct {
 	Response
 }
 
+type UsersResponse struct {
+	Users []*User `json:"members,omitempty"`
+	Response
+}
+
 type UserIDsResponse struct {
 	UserIDs []string `json:"users,omitempty"`
 	Response

@@ -119,6 +119,17 @@ func (c *APIClient) PostChatMessage(channel, text, username, iconEmoji string) e
 	return nil
 }
 
+func (c *APIClient) GetUsers() ([]*User, error) {
+	values := url.Values{}
+
+	response := UsersResponse{}
+	if err := c.Call("users.list", &values, &response); err != nil {
+		return nil, err
+	}
+
+	return response.Users, nil
+}
+
 func (c *APIClient) GetUserGroups() ([]*UserGroup, error) {
 	values := url.Values{}
 	values.Add("include_users", "1")
