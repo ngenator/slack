@@ -110,6 +110,7 @@ func (c *APIClient) PostChatMessage(channel, text, username, iconEmoji string) e
 	values.Add("username", username)
 	values.Add("icon_emoji", iconEmoji)
 	values.Add("link_names", "1")
+	values.Add("parse", "full")
 
 	response := Response{}
 	if err := c.Call("chat.postMessage", &values, &response); err != nil {
